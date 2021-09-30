@@ -49,18 +49,14 @@ jobs:
     needs: deployGhPages
     runs-on: ubuntu-latest
     steps:
-      - uses: appleboy/scp-action@v0.1.1
-        with:
-          host: ${{ secrets.HOST }}
-          key: ${{secrets.SSH_KEY}}
-          username: ${{ secrets.USERNAME }}
-          source: "out,package-lock.json,package.json"
-          target: "aloha-bot"
       - uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
           script: |
+            cd /home/discordbot
+            git clone https://github.com/CouturierTristan/aloha-bot.git
+            cd aloha-bot
             npm install
             npm run start
