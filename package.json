@@ -1,0 +1,48 @@
+{
+  "name": "discord-typescript-boilerplate",
+  "version": "1.0.0",
+  "description": "Boilerplate for discord bot using typescript",
+  "main": "build/index.js",
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": {
+    "start": "npm run prisma:prod && node out",
+    "start:dev": "npm run build && npm run prisma:dev && npm start",
+    "build": "npx prisma generate && tsc --build tsconfig.json",
+    "lint": "eslint . --ext .ts",
+    "test": "mocha -r ts-node/register **/*.test.ts",
+    "coverage": "nyc npm run test",
+    "prisma:dev": "npx prisma migrate dev",
+    "prisma:prod": "npx prisma migrate deploy"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "typescript"
+  ],
+  "author": "COUTURIER Tristan",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@prisma/client": "^3.1.1",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
+    "@typescript-eslint/parser": "^4.31.2",
+    "chai": "^4.3.4",
+    "eslint": "^7.32.0",
+    "mocha": "^9.1.2",
+    "nyc": "^15.1.0",
+    "prisma": "^3.1.1",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
+}

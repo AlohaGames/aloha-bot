@@ -1,0 +1,16 @@
+# Config
+.env
+
+# Build
+out/
+
+# NodeJS
+node_modules/
+
+# Database
+*.db
+*.db-journal
+
+# Coverage
+.nyc_output/
+coverage/
