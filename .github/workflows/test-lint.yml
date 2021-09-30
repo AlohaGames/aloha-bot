@@ -51,8 +51,8 @@ jobs:
     steps:
       - uses: appleboy/ssh-action@v0.1.4
         with:
-          host: ${{secret.SSH_HOST}}
-          key: ${{secret.SSH_KEY}}
-          username: ${{secret.SSH_USERNAME}}
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USERNAME}}
           script: |
             touch itworks
