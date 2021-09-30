@@ -55,9 +55,8 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
           script: |
-            cd /home/discordbot
-            git clone https://github.com/CouturierTristan/aloha-bot.git
-            cd aloha-bot
+            git -C ${{secrets.WORKING_DIR}} pull || git clone https://github.com/CouturierTristan/aloha-bot.git ${{secrets.WORKING_DIR}}
+            cd ${{secrets.WORKING_DIR}}
             npm install
             npm run build
             npm run start
