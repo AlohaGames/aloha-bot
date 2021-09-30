@@ -1,7 +1,7 @@
 {
-  "name": "discord-typescript-boilerplate",
+  "name": "aloha-bot",
   "version": "1.0.0",
-  "description": "Boilerplate for discord bot using typescript",
+  "description": "Aloha discord server bot",
   "main": "build/index.js",
   "engines": {
     "node": ">= 16"
