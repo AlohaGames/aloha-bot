@@ -10,9 +10,8 @@ export async function registerSlashCommands(
 ): Promise<void> {
   if (guildsId && guildsId.length >= 0) {
     await registerSlashCommandsForGuilds(rest, csm, guildsId);
-  } else {
-    await registerSlashCommandsForAllGuilds(rest, csm);
   }
+  await registerSlashCommandsForAllGuilds(rest, csm);
 }
 
 async function registerSlashCommandsForAllGuilds(
