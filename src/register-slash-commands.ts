@@ -1,17 +1,19 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { configuration } from "./configuration";
+import { CommandSlashManager } from "./commands/CommandSlashManager";
 
 export async function registerSlashCommands(
   rest: REST,
   csm: CommandSlashManager,
   guildsId?: string[]
 ): Promise<void> {
+  // Either use a whitelist of guilds or all guilds
   if (guildsId && guildsId.length >= 0) {
     await registerSlashCommandsForGuilds(rest, csm, guildsId);
+  } else {
+    await registerSlashCommandsForAllGuilds(rest, csm);
   }
-  await registerSlashCommandsForAllGuilds(rest, csm);
 }
 
 async function registerSlashCommandsForAllGuilds(
