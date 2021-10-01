@@ -59,4 +59,5 @@ jobs:
             cd ${{secrets.WORKING_DIR}}
             npm install
             npm run build
-            npm run start
+            npm run prisma:prod
+            npx pm2 delete out/index.js 2> /dev/null && npx pm2 start out/index.js
