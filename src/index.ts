@@ -8,6 +8,7 @@ import { ReactionCommand } from "./commands/sample/ReactionCommand/ReactionComma
 import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCommand";
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
+import { CrayonSlashCommand } from "./commands/CrayonSlashCommand/CrayonSlashCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 
@@ -54,6 +55,9 @@ commandSlashManager.registerCommand(
   contextManager.getDiscordContext(),
   "timer-helper",
   new TimeHelperSlashCommand()
+);
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(), "crayon", new CrayonSlashCommand()
 );
 
 // Register Slash commands at Discord from the manager
