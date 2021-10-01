@@ -8,7 +8,7 @@ import { ReactionCommand } from "./commands/sample/ReactionCommand/ReactionComma
 import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCommand";
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
-import { BiteCommand } from "./commands/sample/BiteCommand/BiteCommand";
+import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 
