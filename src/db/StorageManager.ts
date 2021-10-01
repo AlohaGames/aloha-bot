@@ -13,9 +13,9 @@ export class StorageManager {
     return guilds.map((g) => new Storage(g.id));
   }
 
-  async getStorage(guildId: string | null): Promise<Storage | null> {
+  async getStorage(guildId: string | null): Promise<Storage> {
     if (!guildId) {
-      return null;
+      throw new Error(`Could not find storage for guild ${guildId}`);
     }
 
     const storage = this.storages[guildId];
