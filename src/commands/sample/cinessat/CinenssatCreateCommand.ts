@@ -10,62 +10,49 @@ import { Utils } from "./Utils";
 const utils = new Utils()
 
 export class CinenssatCreateCommand extends BasicSlashCommand {
-    register(name: string): SlashCommandBuilder {
+    register(name: string): Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> {
         return new SlashCommandBuilder()
             .setName(name)
-            .setDescription("Ajout d'un film que vous avez déjà regarder lors d'une soirée Cin'ENSSAT");
+            .setDescription("Ajout d'un film que vous avez déjà regarder lors d'une soirée Cin'ENSSAT")
+            .addStringOption((option) =>
+                option.setName("title").setDescription("Ajout du titre du film").setRequired(true))
+            .addStringOption((option) =>
+                option.setName("director").setDescription("Ajout du réalisateur").setRequired(true))
+            .addStringOption((option) =>
+                option.setName("date").setDescription("Date de sortie (format : DD/MM/yyyy)").setRequired(true));
     }
 
     async onRegister(ctx: DiscordContext): Promise<void> {
         console.log("Registered command create cinenssat");
         await ctx.client.on("interactionCreate", (interaction) => {
-            if (interaction.isButton() || interaction.isSelectMenu()) {
-                switch (interaction.customId) {
-                    case "other":
-                        interaction.update({
-                            content: "A quelle date ?",
-                            components: [new MessageActionRow()
-                                .addComponents(
-                                    new MessageSelectMenu()
-                                        .setCustomId('other-day')
-                                        .setPlaceholder("Choisir un date")
-                                        .addOptions(utils.getDateSelectOptions())
-                                )
-                            ]
-                        });
-                        break;
-                    case "today" :
-                    case "other-day" :
-                        interaction.update({
-                            content: "Quel notes lui donnes-tu ?",
-                            components: [new MessageActionRow()
-                                .addComponents(
-                                    new MessageSelectMenu()
-                                        .setCustomId('note')
-                                        .setPlaceholder("Choisir un note")
-                                        .addOptions(utils.getNoteSelectOptions())
-                                )
-                            ]
-                        });
-                        break;
-                    case "note" :
-                        interaction.update({
-                            content: "C'est fait",
-                            components: [],
-                            embeds: [new MessageEmbed()
-                                .setColor('#C53A41')
-                                .setTitle("Test")
-                                .setAuthor(interaction.user.tag)
-                            ]
-                        });
-                        break;
-                    default : break;
-                }
+            if (interaction.isButton() && interaction.customId === "other") {
+                interaction.update({
+                    content: "A quelle date ?",
+                    components: [new MessageActionRow()
+                        .addComponents(
+                            new MessageSelectMenu()
+                                .setCustomId('other-day')
+                                .setPlaceholder("Choisir un date")
+                                .addOptions(utils.getDateSelectOptions())
+                        )
+                    ]
+                });
             }
         });
     }
 
     async execute(ctx: DiscordOnInteractionContext): Promise<void> {
+        // embed for the movie
+        const title = ctx.interaction.options.getString("title", true);
+        const director = ctx.interaction.options.getString("director", true);
+        const release = ctx.interaction.options.getString("date", true);
+
+        const embed = new MessageEmbed()
+            .setColor('#C53A41')
+            .setAuthor(title.toUpperCase() + " (" + release + ")")
+            .setFooter("Film produit par " + director)
+
+        // interaction
         const date = DateTime.now().toFormat('dd LLL yyyy');
         const day = new MessageActionRow().addComponents(
             new MessageButton()
@@ -80,6 +67,7 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
 
         await ctx.interaction.reply({
             content: "Vous voulez créer une film",
+            embeds: [embed],
             components: [day],
         });
     }
