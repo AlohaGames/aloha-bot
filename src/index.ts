@@ -10,7 +10,7 @@ import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCo
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
-import { CinenssatCreateCommand } from "./commands/sample/cinessat/CinenssatCreateCommand";
+import { CinenssatCreateCommand } from "./commands/sample/Cinessat/CinenssatCreateCommand";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({

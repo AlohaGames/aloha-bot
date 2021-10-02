@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { BasicSlashCommand } from "../../BasicSlashCommand";
 import { Utils } from "./Utils";
+import { InteractionActionCommand } from "./InteractionActionCommand";
 import {
   DiscordContext,
   DiscordOnInteractionContext,
@@ -16,6 +17,7 @@ import {
 import { TheMovieDb, TheMovieDbLanguage } from "./TheMovieDb";
 
 const utils = new Utils();
+const action = new InteractionActionCommand();
 
 export class CinenssatCreateCommand extends BasicSlashCommand {
   register(
@@ -47,18 +49,32 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
 
   async onRegister(ctx: DiscordContext): Promise<void> {
     console.log("Registered command create cinenssat");
-    await ctx.client.on("interactionCreate", (interaction) => {
+    ctx.client.on("interactionCreate", (interaction) => {
       if (interaction.isButton() && interaction.customId === "other") {
+        interaction.update(action.getMenuSelection(
+          "A quelle date ?",
+          "other-day",
+          "Choisir une date",
+          utils.getDateSelectOptions())
+        );
+      }
+      if (interaction.isSelectMenu() && interaction.customId === "other-day") {
+        const date = interaction.values[0];
+        const old_embed = interaction.message.embeds[0];
+        const embed = action.getEmbedMessage(
+          old_embed.author?.name || "Unknow",
+          undefined,
+          old_embed.description || undefined,
+          old_embed.footer?.text,
+          old_embed.image?.url
+        )
+
+        embed.addField("Date de visionnage", date)
+
         interaction.update({
-          content: "A quelle date ?",
-          components: [
-            new MessageActionRow().addComponents(
-              new MessageSelectMenu()
-                .setCustomId("other-day")
-                .setPlaceholder("Choisir un date")
-                .addOptions(utils.getDateSelectOptions())
-            ),
-          ],
+          content: null,
+          embeds: [embed],
+          components: []
         });
       }
     });
@@ -77,11 +93,11 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
     // Get movie on the movie db if api_key is available
     const movieTMDB = configuration.theMovieDb.apiKey
       ? (
-          await TheMovieDb(
-            TheMovieDbLanguage.FR,
-            configuration.theMovieDb.apiKey
-          ).search(title)
-        )[0]
+        await TheMovieDb(
+          TheMovieDbLanguage.FR,
+          configuration.theMovieDb.apiKey
+        ).search(title)
+      )[0]
       : undefined;
 
     console.log(movieTMDB);
@@ -95,23 +111,13 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
       description: description || (fill ? movieTMDB?.overview : undefined),
     };
 
-    const embed = new MessageEmbed()
-      .setColor("#C53A41")
-      .setAuthor(
-        movie.title?.toUpperCase() + (movie.release ? `(${movie.release})` : "")
-      );
-
-    if (movie.description) {
-      embed.setDescription(`${movie.description}`);
-    }
-
-    if (movie.director) {
-      embed.setFooter(`Réalisé par ${movie.director}`);
-    }
-
-    if (movie.url) {
-      embed.setImage(movie.url);
-    }
+    const embed = action.getEmbedMessage(
+      movie.title,
+      movie.release,
+      movie.description,
+      movie.director || undefined,
+      movie.url
+    )
 
     // Interaction
     const date = DateTime.now().toFormat("dd LLL yyyy");
@@ -119,7 +125,8 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
       new MessageButton()
         .setCustomId("today")
         .setLabel("Aujourd'hui : " + date)
-        .setStyle("PRIMARY"),
+        .setStyle("PRIMARY")
+        .setDisabled(true),
       new MessageButton()
         .setCustomId("other")
         .setLabel("Autre date")
@@ -127,7 +134,7 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
     );
 
     await ctx.interaction.reply({
-      content: "Vous voulez créer une film",
+      content: "Vous voulez créer un film",
       embeds: [embed],
       components: [day],
     });
