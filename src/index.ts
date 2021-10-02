@@ -10,6 +10,7 @@ import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCo
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
+import { CinenssatCreateCommand } from "./commands/sample/cinessat/CinenssatCreateCommand";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -54,6 +55,11 @@ commandSlashManager.registerCommand(
   contextManager.getDiscordContext(),
   "timer-helper",
   new TimeHelperSlashCommand()
+);
+commandSlashManager.registerCommand(
+    contextManager.getDiscordContext(),
+    "create-movie",
+    new CinenssatCreateCommand()
 );
 
 // Register Slash commands at Discord from the manager

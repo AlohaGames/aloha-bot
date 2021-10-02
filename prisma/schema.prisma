@@ -15,3 +15,26 @@ model BotGuild {
 generator client {
   provider = "prisma-client-js"
 }
+
+model User {
+    id  Int @id @default(autoincrement())
+}
+
+model Note {
+    id          String      @id @default(uuid())
+    author_id   String
+    note        Float
+    comment     String?
+    film         Film?      @relation(fields: [FilmId], references: [id])
+    FilmId      String?
+}
+
+model Film {
+    id          String      @id @default(uuid())
+    guildId     String
+    watchDate   DateTime    @default(now())
+    title       String
+    director    String
+    date        DateTime
+    notes       Note[]
+}
