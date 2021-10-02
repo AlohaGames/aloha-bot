@@ -6,7 +6,11 @@ export interface BasicSlashCommand {
 }
 
 export abstract class BasicSlashCommand {
-  abstract register(name: string): SlashCommandBuilder;
+  abstract register(
+    name: string
+  ):
+    | SlashCommandBuilder
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
   abstract execute(ctx: DiscordOnInteractionContext): Promise<void> | void;
 }
