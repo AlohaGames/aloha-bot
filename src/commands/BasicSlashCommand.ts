@@ -8,5 +8,5 @@ export interface BasicSlashCommand {
 export abstract class BasicSlashCommand {
   abstract register(name: string): SlashCommandBuilder;
 
-  abstract execute(ctx: DiscordOnInteractionContext): Promise<void>;
+  abstract execute(ctx: DiscordOnInteractionContext): Promise<void> | void;
 }

@@ -1,3 +1,4 @@
+import { FastReactCommand } from "./commands/fast-react/FastReactCommand";
 import { REST } from "@discordjs/rest";
 import { Client, Intents } from "discord.js";
 import { CommandManager } from "./commands/CommandManager";
@@ -9,8 +10,10 @@ import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCommand";
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
 import { CrayonSlashCommand } from "./commands/CrayonSlashCommand/CrayonSlashCommand";
+import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
+import { commandNameArgs } from "./common/command-name-args";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -44,6 +47,16 @@ commandManager.registerCommand(
   "react",
   new ReactionCommand()
 );
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "fr",
+  new FastReactCommand()
+);
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "bite",
+  new BiteCommand()
+);
 
 // Register Slash commands in Manager
 commandSlashManager.registerCommand(
@@ -57,7 +70,9 @@ commandSlashManager.registerCommand(
   new TimeHelperSlashCommand()
 );
 commandSlashManager.registerCommand(
-  contextManager.getDiscordContext(), "crayon", new CrayonSlashCommand()
+  contextManager.getDiscordContext(),
+  "crayon",
+  new CrayonSlashCommand()
 );
 
 // Register Slash commands at Discord from the manager
@@ -85,12 +100,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(configuration.prefix) || message.author.bot)
     return;
 
-  const args = message.content
-    .slice(configuration.prefix.length)
-    .trim()
-    .split(/ +/);
-
-  const commandName = args.shift()?.toLowerCase();
+  const { commandName, args } = commandNameArgs(message.content);
 
   const ctx = await contextManager.getDiscordOnMessageContext(message);
 

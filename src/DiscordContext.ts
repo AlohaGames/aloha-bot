@@ -9,7 +9,7 @@ export interface DiscordContext {
 
 export interface DiscordOnMessageContext extends DiscordContext {
   message: Message;
-  storage: Storage | null;
+  storage: Storage;
 }
 
 export interface DiscordOnInteractionContext extends DiscordContext {

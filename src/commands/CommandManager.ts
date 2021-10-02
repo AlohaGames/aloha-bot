@@ -25,13 +25,13 @@ export class CommandManager {
     args: string[]
   ): Promise<void> {
     if (!commandName) {
-      ctx.message.reply(`No command name!`);
+      throw new Error(`No command name!`);
       return;
     }
 
     const command = this.commands[commandName];
     if (!command) {
-      ctx.message.reply(`No command with name ${commandName}`);
+      throw new Error(`No command with name ${commandName}`);
       return;
     }
 
