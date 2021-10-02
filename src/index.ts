@@ -1,3 +1,5 @@
+import { CitationSlashCommand } from "./commands/CitationSlashCommand/CitationSlashCommand";
+import { FastReactCommand } from "./commands/fast-react/FastReactCommand";
 import { REST } from "@discordjs/rest";
 import { Client, Intents } from "discord.js";
 import { CommandManager } from "./commands/CommandManager";
@@ -8,8 +10,11 @@ import { ReactionCommand } from "./commands/sample/ReactionCommand/ReactionComma
 import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCommand";
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
+import { CrayonSlashCommand } from "./commands/CrayonSlashCommand/CrayonSlashCommand";
+import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
+import { commandNameArgs } from "./common/command-name-args";
 import { CinenssatCreateCommand } from "./commands/sample/Cinessat/CinenssatCreateCommand";
 
 // https://discord.com/developers/docs/topics/gateway
@@ -44,6 +49,16 @@ commandManager.registerCommand(
   "react",
   new ReactionCommand()
 );
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "fr",
+  new FastReactCommand()
+);
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "bite",
+  new BiteCommand()
+);
 
 // Register Slash commands in Manager
 commandSlashManager.registerCommand(
@@ -55,6 +70,16 @@ commandSlashManager.registerCommand(
   contextManager.getDiscordContext(),
   "timer-helper",
   new TimeHelperSlashCommand()
+);
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "crayon",
+  new CrayonSlashCommand()
+);
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "citation",
+  new CitationSlashCommand()
 );
 commandSlashManager.registerCommand(
     contextManager.getDiscordContext(),
@@ -87,12 +112,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(configuration.prefix) || message.author.bot)
     return;
 
-  const args = message.content
-    .slice(configuration.prefix.length)
-    .trim()
-    .split(/ +/);
-
-  const commandName = args.shift()?.toLowerCase();
+  const { commandName, args } = commandNameArgs(message.content);
 
   const ctx = await contextManager.getDiscordOnMessageContext(message);
 

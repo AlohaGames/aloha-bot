@@ -10,6 +10,14 @@ model BotGuild {
   id             String   @id
   messageReactId String?
   createdAt      DateTime @default(now())
+  countCrayon    Int?     @default(0)
+}
+
+model Shortcut {
+  id       String @id @default(uuid())
+  authorId String
+  name     String
+  emojies  String // String[] but stringify because sqlite does not support it
 }
 
 generator client {
