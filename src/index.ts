@@ -1,3 +1,4 @@
+import { CitationSlashCommand } from "./commands/CitationSlashCommand/CitationSlashCommand";
 import { FastReactCommand } from "./commands/fast-react/FastReactCommand";
 import { REST } from "@discordjs/rest";
 import { Client, Intents } from "discord.js";
@@ -73,6 +74,11 @@ commandSlashManager.registerCommand(
   contextManager.getDiscordContext(),
   "crayon",
   new CrayonSlashCommand()
+);
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "citation",
+  new CitationSlashCommand()
 );
 
 // Register Slash commands at Discord from the manager
