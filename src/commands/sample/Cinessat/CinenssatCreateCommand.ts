@@ -1,11 +1,10 @@
-import { configuration } from "./../../../configuration";
+import { configuration } from "../../../configuration";
 import { DateTime } from "luxon";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
+  Guild,
   MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  MessageSelectMenu,
+  MessageButton, User,
 } from "discord.js";
 import { BasicSlashCommand } from "../../BasicSlashCommand";
 import { Utils } from "./Utils";
@@ -66,14 +65,60 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
           undefined,
           old_embed.description || undefined,
           old_embed.footer?.text,
-          old_embed.image?.url
+          old_embed.image?.url,
+          undefined
         )
 
-        embed.addField("Date de visionnage", date)
+        embed.addField("Date de visionnage sur " + interaction.guild?.name, date)
 
         interaction.update({
           content: null,
           embeds: [embed],
+          components: [action.getActionRow("note", "Quelle note lui donnes-tu ?", utils.getNoteSelectOptions())]
+        });
+      }
+      if (interaction.isSelectMenu() && interaction.customId === "note") {
+        const note = interaction.values[0]
+        const old_embed = interaction.message.embeds[0];
+
+        const fields = old_embed.fields
+        let existingNoteField = false
+        fields?.forEach(field => {
+          if (field.name.includes("Note")) {
+            existingNoteField = true
+            field.value = field.value + "\n" + "<@" + interaction.user.id + "> : " + note + "/10"
+          }
+        })
+
+        const embed = action.getEmbedMessage(
+          old_embed.author?.name || "Unknow",
+          undefined,
+          old_embed.description || undefined,
+          old_embed.footer?.text,
+          old_embed.image?.url,
+          old_embed.fields
+        )
+
+        if (!existingNoteField) {
+          embed.addField("Note attribuée", "<@" + interaction.user.id + "> : " + note + "/10", true)
+        }
+
+        interaction.update({
+          content: null,
+          embeds: [embed],
+          components: [
+            action.getActionRow("note", "Quelle note lui donnes-tu ?", utils.getNoteSelectOptions()),
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setCustomId("close")
+                .setLabel("Clôture des notes")
+                .setStyle("DANGER")
+            )
+          ]
+        });
+      }
+      if (interaction.isButton() && interaction.customId === "close") {
+        interaction.update({
           components: []
         });
       }
@@ -100,7 +145,6 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
       )[0]
       : undefined;
 
-    console.log(movieTMDB);
 
     // Merge it with user inputs
     const movie = {

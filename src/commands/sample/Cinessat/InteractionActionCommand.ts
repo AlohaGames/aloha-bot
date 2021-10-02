@@ -1,4 +1,5 @@
 import {
+  EmbedFieldData,
   MessageActionRow,
   MessageEditOptions,
   MessageEmbed,
@@ -15,14 +16,18 @@ export class InteractionActionCommand {
     return {
       content: content,
       components: [
-        new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setCustomId(customId)
-            .setPlaceholder(placeholder)
-            .addOptions(option)
-        ),
+        this.getActionRow(customId, placeholder, option)
       ],
     }
+  }
+
+  getActionRow(customId: string, placeholder: string, option: MessageSelectOptionData[]): MessageActionRow{
+    return new MessageActionRow().addComponents(
+      new MessageSelectMenu()
+        .setCustomId(customId)
+        .setPlaceholder(placeholder)
+        .addOptions(option)
+    )
   }
 
   getEmbedMessage(
@@ -30,7 +35,8 @@ export class InteractionActionCommand {
     release?: string,
     description?: string,
     director?: string,
-    url?: string): MessageEmbed {
+    url?: string,
+    fields?: EmbedFieldData[]): MessageEmbed {
     const embed = new MessageEmbed()
       .setColor("#C53A41")
       .setAuthor(title?.toUpperCase() + (release ? ` (${release})` : ""));
@@ -45,6 +51,10 @@ export class InteractionActionCommand {
 
     if (url) {
       embed.setImage(url)
+    }
+
+    if(fields) {
+      embed.setFields(fields)
     }
 
     return embed
