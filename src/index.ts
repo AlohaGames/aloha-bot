@@ -10,6 +10,7 @@ import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCo
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
+import { PizzaCommand } from "./commands/pizza/PizzaCommand";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -55,6 +56,12 @@ commandSlashManager.registerCommand(
   "timer-helper",
   new TimeHelperSlashCommand()
 );
+
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "pizza",
+  new PizzaCommand()
+)
 
 // Register Slash commands at Discord from the manager
 registerSlashCommands(rest, commandSlashManager, [
