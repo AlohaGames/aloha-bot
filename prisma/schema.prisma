@@ -10,6 +10,7 @@ model BotGuild {
   id             String   @id
   messageReactId String?
   createdAt      DateTime @default(now())
+  countCrayon    Int?     @default(0)
 }
 
 model Shortcut {
