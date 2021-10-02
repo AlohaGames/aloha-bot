@@ -10,7 +10,9 @@ export class FastReactCommandList extends BasicCommand {
     const shortcuts = await ctx.storage.getShortcuts(ctx.message.author.id);
 
     ctx.message.reply(
-      shortcuts.map((s) => `${s.name} : ${s.emojies}`).join("\n")
+      `Liste des commandes : \n${shortcuts
+        .map((s) => `${s.name} : ${s.emojies}`)
+        .join("\n")}`
     );
   }
 }

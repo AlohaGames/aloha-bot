@@ -9,6 +9,7 @@ import { ReactionCommand } from "./commands/sample/ReactionCommand/ReactionComma
 import { CommandSlashManager } from "./commands/CommandSlashManager";
 import { PingSlashCommand } from "./commands/sample/PingSlashCommand/PingSlashCommand";
 import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand/TimeHelperSlashCommand";
+import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 import { commandNameArgs } from "./common/command-name-args";
@@ -49,6 +50,11 @@ commandManager.registerCommand(
   contextManager.getDiscordContext(),
   "fr",
   new FastReactCommand()
+);
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "bite",
+  new BiteCommand()
 );
 
 // Register Slash commands in Manager
