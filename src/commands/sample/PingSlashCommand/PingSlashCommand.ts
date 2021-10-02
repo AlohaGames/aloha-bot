@@ -9,7 +9,7 @@ export class PingSlashCommand extends BasicSlashCommand {
       .setDescription("Replies with Pong!");
   }
 
-  async execute(ctx: DiscordOnInteractionContext): Promise<void> {
+  execute(ctx: DiscordOnInteractionContext): void {
     ctx.interaction.reply("pong");
   }
 }

@@ -11,5 +11,5 @@ export abstract class BasicCommand {
   abstract parse(args: string[]): BasicCommand;
 
   // This method is async
-  abstract execute(ctx: DiscordOnMessageContext): Promise<void>;
+  abstract execute(ctx: DiscordOnMessageContext): Promise<void> | void;
 }

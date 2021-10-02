@@ -1,3 +1,4 @@
+import { FastReactCommand } from "./commands/fast-react/FastReactCommand";
 import { REST } from "@discordjs/rest";
 import { Client, Intents } from "discord.js";
 import { CommandManager } from "./commands/CommandManager";
@@ -11,6 +12,7 @@ import { TimeHelperSlashCommand } from "./commands/sample/TimeHelperSlashCommand
 import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
+import { commandNameArgs } from "./common/command-name-args";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -43,6 +45,11 @@ commandManager.registerCommand(
   contextManager.getDiscordContext(),
   "react",
   new ReactionCommand()
+);
+commandManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "fr",
+  new FastReactCommand()
 );
 commandManager.registerCommand(
   contextManager.getDiscordContext(),
@@ -87,12 +94,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(configuration.prefix) || message.author.bot)
     return;
 
-  const args = message.content
-    .slice(configuration.prefix.length)
-    .trim()
-    .split(/ +/);
-
-  const commandName = args.shift()?.toLowerCase();
+  const { commandName, args } = commandNameArgs(message.content);
 
   const ctx = await contextManager.getDiscordOnMessageContext(message);
 
