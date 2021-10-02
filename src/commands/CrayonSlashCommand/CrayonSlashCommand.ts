@@ -7,7 +7,7 @@ import {
 } from "../../DiscordContext";
 
 export class CrayonSlashCommand extends BasicSlashCommand {
-  count: number = 0;
+  count = 0;
 
   register(name: string): SlashCommandBuilder {
     return new SlashCommandBuilder()
