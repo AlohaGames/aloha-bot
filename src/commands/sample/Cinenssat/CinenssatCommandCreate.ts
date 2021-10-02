@@ -2,23 +2,21 @@ import { configuration } from "../../../configuration";
 import { DateTime } from "luxon";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
-  Guild,
   MessageActionRow,
-  MessageButton, User,
+  MessageButton
 } from "discord.js";
 import { BasicSlashCommand } from "../../BasicSlashCommand";
-import { Utils } from "./Utils";
-import { InteractionActionCommand } from "./InteractionActionCommand";
 import {
   DiscordContext,
   DiscordOnInteractionContext,
 } from "../../../DiscordContext";
-import { TheMovieDb, TheMovieDbLanguage } from "./TheMovieDb";
+import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
 
-const utils = new Utils();
-const action = new InteractionActionCommand();
+import { getDateSelectOptions, getNoteSelectOptions } from "./lib/Utils";
+import { getMenuSelection, getActionRow } from "./lib/MessageSection";
+import { getEmbedMessage } from "./lib/EmbedCreation";
 
-export class CinenssatCreateCommand extends BasicSlashCommand {
+export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
     name: string
   ): Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> {
@@ -50,17 +48,17 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
     console.log("Registered command create cinenssat");
     ctx.client.on("interactionCreate", (interaction) => {
       if (interaction.isButton() && interaction.customId === "other") {
-        interaction.update(action.getMenuSelection(
+        interaction.update(getMenuSelection(
           "A quelle date ?",
           "other-day",
           "Choisir une date",
-          utils.getDateSelectOptions())
+          getDateSelectOptions())
         );
       }
       if (interaction.isSelectMenu() && interaction.customId === "other-day") {
         const date = interaction.values[0];
         const old_embed = interaction.message.embeds[0];
-        const embed = action.getEmbedMessage(
+        const embed = getEmbedMessage(
           old_embed.author?.name || "Unknow",
           undefined,
           old_embed.description || undefined,
@@ -74,7 +72,7 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
         interaction.update({
           content: null,
           embeds: [embed],
-          components: [action.getActionRow("note", "Quelle note lui donnes-tu ?", utils.getNoteSelectOptions())]
+          components: [getActionRow("note", "Quelle note lui donnes-tu ?", getNoteSelectOptions())]
         });
       }
       if (interaction.isSelectMenu() && interaction.customId === "note") {
@@ -86,11 +84,12 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
         fields?.forEach(field => {
           if (field.name.includes("Note")) {
             existingNoteField = true
+            field.name = "Notes attribuées"
             field.value = field.value + "\n" + "<@" + interaction.user.id + "> : " + note + "/10"
           }
         })
 
-        const embed = action.getEmbedMessage(
+        const embed = getEmbedMessage(
           old_embed.author?.name || "Unknow",
           undefined,
           old_embed.description || undefined,
@@ -107,7 +106,7 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
           content: null,
           embeds: [embed],
           components: [
-            action.getActionRow("note", "Quelle note lui donnes-tu ?", utils.getNoteSelectOptions()),
+            getActionRow("note", "Quelle note lui donnes-tu ?", getNoteSelectOptions()),
             new MessageActionRow().addComponents(
               new MessageButton()
                 .setCustomId("close")
@@ -155,7 +154,7 @@ export class CinenssatCreateCommand extends BasicSlashCommand {
       description: description || (fill ? movieTMDB?.overview : undefined),
     };
 
-    const embed = action.getEmbedMessage(
+    const embed = getEmbedMessage(
       movie.title,
       movie.release,
       movie.description,

@@ -15,7 +15,7 @@ import { BiteCommand } from "./commands/BiteCommand/BiteCommand";
 import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 import { commandNameArgs } from "./common/command-name-args";
-import { CinenssatCreateCommand } from "./commands/sample/Cinessat/CinenssatCreateCommand";
+import { CinenssatCommandCreate } from "./commands/sample/Cinenssat/CinenssatCommandCreate";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -84,7 +84,7 @@ commandSlashManager.registerCommand(
 commandSlashManager.registerCommand(
     contextManager.getDiscordContext(),
     "create-movie",
-    new CinenssatCreateCommand()
+    new CinenssatCommandCreate()
 );
 
 // Register Slash commands at Discord from the manager
