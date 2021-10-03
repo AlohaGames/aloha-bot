@@ -30,7 +30,7 @@ model User {
 
 model Note {
     id          String      @id @default(uuid())
-    author_id   String
+    authorId    String
     note        Float
     comment     String?
     film         Film?      @relation(fields: [FilmId], references: [id])
@@ -43,6 +43,6 @@ model Film {
     watchDate   DateTime    @default(now())
     title       String
     director    String
-    date        DateTime
+    release     DateTime
     notes       Note[]
 }

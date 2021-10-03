@@ -15,6 +15,7 @@ import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
 import { getDateSelectOptions, getNoteSelectOptions } from "./lib/Utils";
 import { getMenuSelection, getActionRow } from "./lib/MessageSection";
 import { getEmbedMessage } from "./lib/EmbedCreation";
+import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
 
 export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
@@ -47,16 +48,12 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
   async onRegister(ctx: DiscordContext): Promise<void> {
     console.log("Registered command create cinenssat");
     ctx.client.on("interactionCreate", (interaction) => {
-      if (interaction.isButton() && interaction.customId === "other") {
-        interaction.update(getMenuSelection(
-          "A quelle date ?",
-          "other-day",
-          "Choisir une date",
-          getDateSelectOptions())
-        );
-      }
-      if (interaction.isSelectMenu() && interaction.customId === "other-day") {
-        const date = interaction.values[0];
+      if ((interaction.isButton() && interaction.customId === "today") ||
+        (interaction.isSelectMenu() && interaction.customId === "other-day")) {
+        let date = getShortFrenchFormatDateNow();
+        if (interaction.isSelectMenu() && interaction.customId === "other-day") {
+          date = interaction.values[0];
+        }
         const old_embed = interaction.message.embeds[0];
         const embed = getEmbedMessage(
           old_embed.author?.name || "Unknow",
@@ -74,6 +71,14 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
           embeds: [embed],
           components: [getActionRow("note", "Quelle note lui donnes-tu ?", getNoteSelectOptions())]
         });
+      }
+      if (interaction.isButton() && interaction.customId === "other") {
+        interaction.update(getMenuSelection(
+          "A quelle date ?",
+          "other-day",
+          "Choisir une date",
+          getDateSelectOptions())
+        );
       }
       if (interaction.isSelectMenu() && interaction.customId === "note") {
         const note = interaction.values[0]
@@ -163,17 +168,16 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
     )
 
     // Interaction
-    const date = DateTime.now().toFormat("dd LLL yyyy");
+    const date = getShortFrenchFormatDateNow()
     const day = new MessageActionRow().addComponents(
       new MessageButton()
         .setCustomId("today")
         .setLabel("Aujourd'hui : " + date)
-        .setStyle("PRIMARY")
-        .setDisabled(true),
+        .setStyle("SUCCESS"),
       new MessageButton()
         .setCustomId("other")
         .setLabel("Autre date")
-        .setStyle("SECONDARY")
+        .setStyle("SECONDARY"),
     );
 
     await ctx.interaction.reply({
