@@ -2,8 +2,9 @@ import { configuration } from "../../../configuration";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Guild,
+  GuildMember,
   MessageActionRow,
-  MessageButton
+  MessageButton,
 } from "discord.js";
 import { BasicSlashCommand } from "../../BasicSlashCommand";
 import {
@@ -11,12 +12,10 @@ import {
   DiscordOnInteractionContext,
 } from "../../../DiscordContext";
 import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
-
 import { getEmbedMessage } from "./lib/EmbedCreation";
-import {getShortFrenchFormatDate, getShortFrenchFormatDateNow} from "../../../common/date-utils";
+import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
 import { CinenssatGetWiewingDate } from "./CinenssatCommandDate";
 import { CinenssatInputNote } from "./CinenssatCommandNote";
-import {DateTime} from "luxon";
 
 export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
@@ -55,9 +54,14 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
 
       // other trigger option depending of button selected
       if (interaction.isButton() && interaction.customId === "close") {
-        interaction.update({
-          components: []
-        });
+        const member = interaction.member as GuildMember;
+        if (member.permissions.has("ADMINISTRATOR")) {
+          interaction.update({
+            components: [],
+          });
+        } else {
+          interaction.user.send("No right to close this");
+        }
       }
     });
   }
@@ -73,14 +77,16 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
     // Get movie on the movie db if api_key is available
     const movieTMDB = configuration.theMovieDb.apiKey
       ? (
-        await TheMovieDb(
-          TheMovieDbLanguage.FR,
-          configuration.theMovieDb.apiKey
-        ).search(title)
-      )[0]
+          await TheMovieDb(
+            TheMovieDbLanguage.FR,
+            configuration.theMovieDb.apiKey
+          ).search(title)
+        )[0]
       : undefined;
 
-    const storage = await ctx.storageManager.getStorage(ctx.interaction.guildId);
+    const storage = await ctx.storageManager.getStorage(
+      ctx.interaction.guildId
+    );
 
     // Merge it with user inputs
     const movie = await storage.createMovies(
@@ -89,8 +95,8 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
       undefined,
       director || undefined,
       movieTMDB?.release_date || undefined, // @TODO update for french format with luxon
-      movieTMDB?.poster_full || undefined,
-    );//*/
+      movieTMDB?.poster_full || undefined
+    ); //*/
 
     const embed = getEmbedMessage(
       movie.title,
@@ -98,10 +104,10 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
       movieTMDB?.overview || undefined,
       movie.director || undefined,
       movie.poster || undefined
-    )
+    );
 
     // Interaction
-    const date = getShortFrenchFormatDateNow()
+    const date = getShortFrenchFormatDateNow();
     const day = new MessageActionRow().addComponents(
       new MessageButton()
         .setCustomId("today")
@@ -110,7 +116,7 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
       new MessageButton()
         .setCustomId("other")
         .setLabel("Autre date")
-        .setStyle("SECONDARY"),
+        .setStyle("SECONDARY")
     );
 
     await ctx.interaction.reply({
