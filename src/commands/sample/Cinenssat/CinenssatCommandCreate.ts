@@ -1,7 +1,6 @@
 import { configuration } from "../../../configuration";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
-  Guild,
   GuildMember,
   MessageActionRow,
   MessageButton,
@@ -67,9 +66,6 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
   }
 
   async execute(ctx: DiscordOnInteractionContext): Promise<void> {
-    // Embed for the movie
-    const fill = ctx.interaction.options.getBoolean("fill") || true;
-
     // Input option for movie without fill
     const title = ctx.interaction.options.getString("title", true);
     const director = ctx.interaction.options.getString("director");
