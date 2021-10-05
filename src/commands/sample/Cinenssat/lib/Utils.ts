@@ -28,8 +28,12 @@ export function getNoteSelectOptions(): MessageSelectOptionData[] {
   // adding 20 notes from 0 to 10, step 0.5 to note the movie
   const noteArray: MessageSelectOptionData[] = []
 
-  for(let note = 0; note <= 10; note = note + 0.5) {
-    noteArray.push({label: note.toString(), value: note.toString()})
+  for(let note = 10; note >= 0; note = note - 0.5) {
+    if (note === 0) {
+      noteArray.push({label: note.toString(), description: "La Kévin", value: note.toString()})
+    } else {
+      noteArray.push({label: note.toString(), value: note.toString()})
+    }
   }
 
   return noteArray;

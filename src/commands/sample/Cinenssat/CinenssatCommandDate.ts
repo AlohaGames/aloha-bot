@@ -3,8 +3,11 @@ import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
 import { getEmbedMessage } from "./lib/EmbedCreation";
 import {getActionRow, getMenuSelection} from "./lib/MessageSection";
 import {getDateSelectOptions, getNoteSelectOptions} from "./lib/Utils";
+import {DiscordContext} from "../../../DiscordContext";
 
-export async function CinenssatGetWiewingDate(interaction: Interaction): Promise<void> {
+export async function CinenssatGetWiewingDate(
+  interaction: Interaction,
+  ctx: DiscordContext): Promise<void> {
   // list 15 days (and today, if it's a missing) to select the viewing date
   if (interaction.isButton() && interaction.customId === "other") {
     await interaction.update(getMenuSelection(
@@ -31,6 +34,13 @@ export async function CinenssatGetWiewingDate(interaction: Interaction): Promise
       old_embed.image?.url,
       undefined
     )
+
+    const storage = await ctx.storageManager.getStorage(interaction.guildId);
+    const movie = await storage.getMovie(
+      old_embed.author?.name ? old_embed.author?.name.toLowerCase().slice(0, -13) : "unknow",
+      interaction.guildId || "mp"
+    )
+    await storage.updateMoviesViewingDate(movie.id, date)
 
     embed.addField("Date de visionnage sur " + interaction.guild?.name, date)
 

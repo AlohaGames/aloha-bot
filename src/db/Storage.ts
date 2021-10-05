@@ -1,4 +1,4 @@
-import { BotGuild, Prisma, Shortcut } from ".prisma/client";
+import {BotGuild, Movies, Note, Prisma, Shortcut} from ".prisma/client";
 import prismaInstance from "./prisma";
 
 export class Storage {
@@ -83,5 +83,92 @@ export class Storage {
       where: { id: this.guildId },
       data,
     });
+  }
+
+
+  // movies part
+  async createMovies(
+    guildId: string,
+    title: string,
+    viewingDate?: string,
+    director?: string,
+    release?: string,
+    poster?: string
+  ): Promise<Movies> {
+    return await prismaInstance.movies.create({
+      data: {
+        guildId,
+        viewingDate,
+        title,
+        director,
+        release,
+        poster
+      },
+    });
+  }
+
+  async getMovie(
+    title: string,
+    guildId: string
+  ): Promise<Movies> {
+    const movie = await prismaInstance.movies.findFirst({
+      where: {
+        title,
+        guildId
+      }
+    })
+    if (!movie) {
+      throw new Error(`No movie named ${title} found`);
+    }
+    return movie;
+  }
+
+  async updateMoviesViewingDate(
+    id: string,
+    date: string
+  ): Promise<Movies> {
+    return await prismaInstance.movies.update({
+      where: {
+        id: id
+      },
+      data:{
+        viewingDate: date
+      }
+    })
+  }
+
+  async createOrUpdateNote(
+    authorId: string,
+    note: number,
+    comment: string,
+    FilmId: string,
+  ): Promise<Note> {
+    return await prismaInstance.note.upsert({
+      where: {
+        authorId_FilmId: {
+          authorId: authorId,
+          FilmId: FilmId,
+        }
+      },
+      update: {
+        note: note,
+      },
+      create: {
+        authorId,
+        note,
+        comment,
+        FilmId
+      }
+    })
+  }
+
+  async getNoteForAFilm(
+    FilmId: string,
+  ): Promise<Note[]> {
+    return await prismaInstance.note.findMany({
+      where: {
+        FilmId: FilmId,
+      }
+    })
   }
 }

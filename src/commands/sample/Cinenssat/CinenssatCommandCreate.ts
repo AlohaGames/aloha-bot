@@ -1,6 +1,7 @@
 import { configuration } from "../../../configuration";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
+  Guild,
   MessageActionRow,
   MessageButton
 } from "discord.js";
@@ -12,9 +13,10 @@ import {
 import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
 
 import { getEmbedMessage } from "./lib/EmbedCreation";
-import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
+import {getShortFrenchFormatDate, getShortFrenchFormatDateNow} from "../../../common/date-utils";
 import { CinenssatGetWiewingDate } from "./CinenssatCommandDate";
 import { CinenssatInputNote } from "./CinenssatCommandNote";
+import {DateTime} from "luxon";
 
 export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
@@ -48,8 +50,8 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
     console.log("Registered command create cinenssat");
     ctx.client.on("interactionCreate", (interaction) => {
       // exporter function to improve readability
-      CinenssatGetWiewingDate(interaction);
-      CinenssatInputNote(interaction);
+      CinenssatGetWiewingDate(interaction, ctx);
+      CinenssatInputNote(interaction, ctx);
 
       // other trigger option depending of button selected
       if (interaction.isButton() && interaction.customId === "close") {
@@ -62,14 +64,11 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
 
   async execute(ctx: DiscordOnInteractionContext): Promise<void> {
     // Embed for the movie
-    const fill = ctx.interaction.options.getBoolean("fill") || false;
+    const fill = ctx.interaction.options.getBoolean("fill") || true;
 
     // Input option for movie without fill
     const title = ctx.interaction.options.getString("title", true);
     const director = ctx.interaction.options.getString("director");
-    const release = ctx.interaction.options.getString("date");
-    const description = ctx.interaction.options.getString("description");
-    const url = ctx.interaction.options.getString("url");
 
     // Get movie on the movie db if api_key is available
     const movieTMDB = configuration.theMovieDb.apiKey
@@ -81,22 +80,24 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
       )[0]
       : undefined;
 
+    const storage = await ctx.storageManager.getStorage(ctx.interaction.guildId);
 
     // Merge it with user inputs
-    const movie = {
-      title: (fill ? movieTMDB?.title : undefined) || title,
-      director: director,
-      release: release || (fill ? movieTMDB?.release_date : undefined),
-      url: url || (fill ? movieTMDB?.poster_full : undefined),
-      description: description || (fill ? movieTMDB?.overview : undefined),
-    };
+    const movie = await storage.createMovies(
+      ctx.interaction.guild?.id || "dm",
+      movieTMDB?.title.toLowerCase() || title,
+      undefined,
+      director || undefined,
+      movieTMDB?.release_date || undefined, // @TODO update for french format with luxon
+      movieTMDB?.poster_full || undefined,
+    );//*/
 
     const embed = getEmbedMessage(
       movie.title,
-      movie.release,
-      movie.description,
+      movie.release || undefined,
+      movieTMDB?.overview || undefined,
       movie.director || undefined,
-      movie.url
+      movie.poster || undefined
     )
 
     // Interaction
