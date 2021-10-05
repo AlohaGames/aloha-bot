@@ -1,4 +1,3 @@
-import {BasicSlashCommand} from "../../BasicSlashCommand";
 import { Interaction } from "discord.js";
 import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
 import { getEmbedMessage } from "./lib/EmbedCreation";
