@@ -1,5 +1,4 @@
 import { configuration } from "../../../configuration";
-import { DateTime } from "luxon";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   MessageActionRow,
@@ -12,10 +11,10 @@ import {
 } from "../../../DiscordContext";
 import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
 
-import { getDateSelectOptions, getNoteSelectOptions } from "./lib/Utils";
-import { getMenuSelection, getActionRow } from "./lib/MessageSection";
 import { getEmbedMessage } from "./lib/EmbedCreation";
 import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
+import { CinenssatGetWiewingDate } from "./CinenssatCommandDate";
+import { CinenssatInputNote } from "./CinenssatCommandNote";
 
 export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
@@ -48,79 +47,11 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
   async onRegister(ctx: DiscordContext): Promise<void> {
     console.log("Registered command create cinenssat");
     ctx.client.on("interactionCreate", (interaction) => {
-      if ((interaction.isButton() && interaction.customId === "today") ||
-        (interaction.isSelectMenu() && interaction.customId === "other-day")) {
-        let date = getShortFrenchFormatDateNow();
-        if (interaction.isSelectMenu() && interaction.customId === "other-day") {
-          date = interaction.values[0];
-        }
-        const old_embed = interaction.message.embeds[0];
-        const embed = getEmbedMessage(
-          old_embed.author?.name || "Unknow",
-          undefined,
-          old_embed.description || undefined,
-          old_embed.footer?.text,
-          old_embed.image?.url,
-          undefined
-        )
+      // exporter function to improve readability
+      CinenssatGetWiewingDate(interaction);
+      CinenssatInputNote(interaction);
 
-        embed.addField("Date de visionnage sur " + interaction.guild?.name, date)
-
-        interaction.update({
-          content: null,
-          embeds: [embed],
-          components: [getActionRow("note", "Quelle note lui donnes-tu ?", getNoteSelectOptions())]
-        });
-      }
-      if (interaction.isButton() && interaction.customId === "other") {
-        interaction.update(getMenuSelection(
-          "A quelle date ?",
-          "other-day",
-          "Choisir une date",
-          getDateSelectOptions())
-        );
-      }
-      if (interaction.isSelectMenu() && interaction.customId === "note") {
-        const note = interaction.values[0]
-        const old_embed = interaction.message.embeds[0];
-
-        const fields = old_embed.fields
-        let existingNoteField = false
-        fields?.forEach(field => {
-          if (field.name.includes("Note")) {
-            existingNoteField = true
-            field.name = "Notes attribuées"
-            field.value = field.value + "\n" + "<@" + interaction.user.id + "> : " + note + "/10"
-          }
-        })
-
-        const embed = getEmbedMessage(
-          old_embed.author?.name || "Unknow",
-          undefined,
-          old_embed.description || undefined,
-          old_embed.footer?.text,
-          old_embed.image?.url,
-          old_embed.fields
-        )
-
-        if (!existingNoteField) {
-          embed.addField("Note attribuée", "<@" + interaction.user.id + "> : " + note + "/10", true)
-        }
-
-        interaction.update({
-          content: null,
-          embeds: [embed],
-          components: [
-            getActionRow("note", "Quelle note lui donnes-tu ?", getNoteSelectOptions()),
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setCustomId("close")
-                .setLabel("Clôture des notes")
-                .setStyle("DANGER")
-            )
-          ]
-        });
-      }
+      // other trigger option depending of button selected
       if (interaction.isButton() && interaction.customId === "close") {
         interaction.update({
           components: []
@@ -133,6 +64,7 @@ export class CinenssatCommandCreate extends BasicSlashCommand {
     // Embed for the movie
     const fill = ctx.interaction.options.getBoolean("fill") || false;
 
+    // Input option for movie without fill
     const title = ctx.interaction.options.getString("title", true);
     const director = ctx.interaction.options.getString("director");
     const release = ctx.interaction.options.getString("date");
