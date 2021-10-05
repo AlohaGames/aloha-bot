@@ -3,6 +3,7 @@
 
 # Build
 out/
+/.idea
 
 # NodeJS
 node_modules/

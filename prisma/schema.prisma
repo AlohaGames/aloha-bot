@@ -23,3 +23,27 @@ model Shortcut {
 generator client {
   provider = "prisma-client-js"
 }
+
+model User {
+    id  Int @id @default(autoincrement())
+}
+
+model Note {
+    authorId    String
+    note        Float
+    comment     String?
+    film         Movies      @relation(fields: [FilmId], references: [id])
+    FilmId      String
+    @@id([authorId, FilmId])
+}
+
+model Movies {
+    id          String      @id @default(uuid())
+    guildId     String
+    title       String
+    viewingDate String?
+    director    String?
+    release     String?
+    poster      String?
+    notes       Note[]
+}

@@ -11,6 +11,9 @@ export interface BotConfiguration {
   dev: {
     guildsId: string[];
   };
+  theMovieDb: {
+    apiKey?: string;
+  };
 }
 
 if (!process.env.DISCORD_TOKEN) {
@@ -29,6 +32,9 @@ export const configuration: BotConfiguration = {
   prefix: process.env.PREFIX || "!prefix",
   dev: {
     guildsId: parseStringArray(process.env.DEV_GUILD_ID),
+  },
+  theMovieDb: {
+    apiKey: process.env.API_KEY,
   },
 };
 
