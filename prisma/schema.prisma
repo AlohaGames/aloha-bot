@@ -6,11 +6,24 @@ datasource db {
   url      = env("PRISMA_DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model BotGuild {
   id             String   @id
   messageReactId String?
-  createdAt      DateTime @default(now())
+  punishRoleId   String?
   countCrayon    Int?     @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model SuicidalScore {
+  userId  String
+  guildId String
+  score   Int
+
+  @@id([userId, guildId])
 }
 
 model Shortcut {
@@ -20,30 +33,27 @@ model Shortcut {
   emojies  String // String[] but stringify because sqlite does not support it
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-    id  Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 }
 
 model Note {
-    authorId    String
-    note        Float
-    comment     String?
-    film         Movies      @relation(fields: [FilmId], references: [id])
-    FilmId      String
-    @@id([authorId, FilmId])
+  authorId String
+  note     Float
+  comment  String?
+  film     Movies  @relation(fields: [FilmId], references: [id])
+  FilmId   String
+
+  @@id([authorId, FilmId])
 }
 
 model Movies {
-    id          String      @id @default(uuid())
-    guildId     String
-    title       String
-    viewingDate String?
-    director    String?
-    release     String?
-    poster      String?
-    notes       Note[]
+  id          String  @id @default(uuid())
+  guildId     String
+  title       String
+  viewingDate String?
+  director    String?
+  release     String?
+  poster      String?
+  notes       Note[]
 }

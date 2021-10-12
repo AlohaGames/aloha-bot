@@ -1,3 +1,4 @@
+import { CreateSuicideSlashCommand } from "./commands/SuicideSlashCommand/CreateSuicideSlashCommand";
 import { CitationSlashCommand } from "./commands/CitationSlashCommand/CitationSlashCommand";
 import { FastReactCommand } from "./commands/fast-react/FastReactCommand";
 import { REST } from "@discordjs/rest";
@@ -82,9 +83,14 @@ commandSlashManager.registerCommand(
   new CitationSlashCommand()
 );
 commandSlashManager.registerCommand(
-    contextManager.getDiscordContext(),
-    "create-movie",
-    new CinenssatCommandCreate()
+  contextManager.getDiscordContext(),
+  "create-movie",
+  new CinenssatCommandCreate()
+);
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "create-suicide-game",
+  new CreateSuicideSlashCommand()
 );
 
 // Register Slash commands at Discord from the manager

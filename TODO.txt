@@ -1,0 +1,2 @@
+- Record to delete does not exists
+- Erreur de création de BotGuild en boucle
