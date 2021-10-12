@@ -1,20 +1,16 @@
-import { configuration } from "../../../configuration";
+import { configuration } from "../../configuration";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {
-  GuildMember,
-  MessageActionRow,
-  MessageButton,
-} from "discord.js";
-import { BasicSlashCommand } from "../../BasicSlashCommand";
+import { GuildMember, MessageActionRow, MessageButton } from "discord.js";
+import { BasicSlashCommand } from "../BasicSlashCommand";
+import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
+import { getEmbedMessage } from "./lib/EmbedCreation";
+import { getShortFrenchFormatDateNow } from "../../common/date-utils";
+import { CinenssatGetWiewingDate } from "./CinenssatCommandDate";
+import { CinenssatInputNote } from "./CinenssatCommandNote";
 import {
   DiscordContext,
   DiscordOnInteractionContext,
-} from "../../../DiscordContext";
-import { TheMovieDb, TheMovieDbLanguage } from "./lib/TheMovieDb";
-import { getEmbedMessage } from "./lib/EmbedCreation";
-import { getShortFrenchFormatDateNow } from "../../../common/date-utils";
-import { CinenssatGetWiewingDate } from "./CinenssatCommandDate";
-import { CinenssatInputNote } from "./CinenssatCommandNote";
+} from "../../DiscordContext";
 
 export class CinenssatCommandCreate extends BasicSlashCommand {
   register(
