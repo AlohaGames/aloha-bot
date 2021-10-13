@@ -26,7 +26,7 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
       .setDescription("Create a suicide game in your discord server !");
   }
 
-  getEmbed(scores: SuicidalScore[]) {
+  getEmbed(scores: SuicidalScore[]): MessageEmbed {
     const embed = new MessageEmbed()
       .setColor("#C53A41")
       .setAuthor("Leaderboard")
