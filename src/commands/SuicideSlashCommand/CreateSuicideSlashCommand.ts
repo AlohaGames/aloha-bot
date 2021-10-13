@@ -68,7 +68,7 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
           if (this.looserate < 1) {
             this.looserate = this.looserate + STEP;
             if (this.looserate > 0.5) {
-              this.points * 2;
+              this.points = this.points + 1;
             }
           }
         } else {
@@ -78,6 +78,7 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
 
           // Reset looserate
           this.looserate = DEFAULT_LOOSERATE;
+          this.points = DEFAULT_POINT;
         }
 
         // Update scores
