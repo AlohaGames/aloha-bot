@@ -1,4 +1,11 @@
-import { BotGuild, Movies, Note, Prisma, Shortcut } from ".prisma/client";
+import {
+  BotGuild,
+  Movies,
+  Note,
+  Prisma,
+  Shortcut,
+  SuicidalScore,
+} from ".prisma/client";
 import prismaInstance from "./prisma";
 
 export class Storage {
@@ -8,13 +15,32 @@ export class Storage {
     this.guildId = guildId;
   }
 
+  async getSuicideGameScores(): Promise<SuicidalScore[]> {
+    const scores = await prismaInstance.suicidalScore.findMany({
+      where: {
+        guildId: this.guildId,
+      },
+    });
+    return scores;
+  }
+
   async resetSuicideGame(userId: string): Promise<void> {
-    await prismaInstance.suicidalScore.delete({
+    await prismaInstance.suicidalScore.upsert({
       where: {
         userId_guildId: {
           userId,
           guildId: this.guildId,
         },
+      },
+      create: {
+        guildId: this.guildId,
+        userId,
+        score: 0,
+      },
+      update: {
+        guildId: this.guildId,
+        userId,
+        score: 0,
       },
     });
   }

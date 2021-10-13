@@ -1,8 +1,14 @@
 import { DiscordContext } from "../../DiscordContext";
-import { GuildMember, MessageActionRow, MessageButton } from "discord.js";
+import {
+  GuildMember,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+} from "discord.js";
 import { DiscordOnInteractionContext } from "../../DiscordContext";
 import { BasicSlashCommand } from "../BasicSlashCommand";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { SuicidalScore } from ".prisma/client";
 
 export class CreateSuicideSlashCommand extends BasicSlashCommand {
   register(
@@ -19,32 +25,60 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
       );
   }
 
+  getEmbed(scores: SuicidalScore[]) {
+    const embed = new MessageEmbed()
+      .setColor("#C53A41")
+      .setAuthor("Leaderboard");
+
+    if (scores.length > 0) {
+      embed.setDescription(
+        scores
+          .sort((s1, s2) => s2.score - s1.score)
+          .map((s) => `<@${s.userId}> : ${s.score}`)
+          .join("\n")
+      );
+    } else {
+      embed.setDescription("Waiting for players to try");
+    }
+
+    return embed;
+  }
+
   onRegister(ctx: DiscordContext): void {
     console.log("Registered command create suicide game");
 
     ctx.client.on("interactionCreate", async (interaction) => {
-      const storage = await ctx.storageManager.getStorage(interaction.guildId);
-
       // A user play the game
       if (interaction.isButton() && interaction.customId === "play") {
-        const user = interaction.user;
-        console.log(`User ${user.id} is trying`);
+        // Get storage
+        const storage = await ctx.storageManager.getStorage(
+          interaction.guildId
+        );
 
         // Retrieve punish role id
         const guildData = await storage.getGuildData();
         if (!guildData || !guildData.punishRoleId)
           throw new Error("Game not instanciate");
+        const punishRoleId = guildData.punishRoleId;
 
-        const value = Math.random();
-        if (value > 0.5) {
-          const actualScore = await storage.incrementSuicideGame(user.id);
+        // If user already punish
+        const member = interaction.member as GuildMember;
+        if (member.roles.cache.find((r) => r.id === punishRoleId)) {
           interaction.reply({
-            content: `You win ! You're actual score is ${actualScore}`,
+            content: "You are already punish !",
             ephemeral: true,
           });
+          return;
+        }
+
+        const user = interaction.user;
+        console.log(`User ${user.id} is trying`);
+        const value = Math.random();
+
+        if (value > 0.5) {
+          await storage.incrementSuicideGame(user.id);
         } else {
           // Check if role exists
-          const punishRoleId = guildData.punishRoleId;
           const role = interaction.guild?.roles.cache.get(punishRoleId);
           if (!role) throw new Error(`Role ${punishRoleId} doest not exists`);
 
@@ -54,12 +88,13 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
 
           // Reset score
           await storage.resetSuicideGame(user.id);
-
-          interaction.reply({
-            content: "You loose ! You're now punished !",
-            ephemeral: true,
-          });
         }
+
+        // Update scores
+        const scores = await storage.getSuicideGameScores();
+        interaction.update({
+          embeds: [this.getEmbed(scores)],
+        });
       }
     });
   }
@@ -84,8 +119,8 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
         );
 
         ctx.interaction.reply({
-          content:
-            "Welcome to the suicide game !\n Click here if you're brave enought.",
+          content: "Welcome to the Suicide Game",
+          embeds: [this.getEmbed([])],
           components: [actions],
         });
       } else {
