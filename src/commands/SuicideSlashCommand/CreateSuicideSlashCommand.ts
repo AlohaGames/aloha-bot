@@ -1,16 +1,21 @@
 import { DiscordContext } from "../../DiscordContext";
+import { DiscordOnInteractionContext } from "../../DiscordContext";
+import { BasicSlashCommand } from "../BasicSlashCommand";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { SuicidalScore } from ".prisma/client";
 import {
   GuildMember,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
 } from "discord.js";
-import { DiscordOnInteractionContext } from "../../DiscordContext";
-import { BasicSlashCommand } from "../BasicSlashCommand";
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { SuicidalScore } from ".prisma/client";
+
+const DEFAULT_LOOSERATE = 0.1;
+const STEP = 0.05;
 
 export class CreateSuicideSlashCommand extends BasicSlashCommand {
+  looserate = DEFAULT_LOOSERATE;
+
   register(
     name: string
   ): Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> {
@@ -28,7 +33,8 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
   getEmbed(scores: SuicidalScore[]) {
     const embed = new MessageEmbed()
       .setColor("#C53A41")
-      .setAuthor("Leaderboard");
+      .setAuthor("Leaderboard")
+      .setFooter(`Looserate : ${this.looserate}`);
 
     if (scores.length > 0) {
       embed.setDescription(
@@ -62,6 +68,7 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
         const punishRoleId = guildData.punishRoleId;
 
         // If user already punish
+        /* 
         const member = interaction.member as GuildMember;
         if (member.roles.cache.find((r) => r.id === punishRoleId)) {
           interaction.reply({
@@ -69,14 +76,20 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
             ephemeral: true,
           });
           return;
-        }
+        } 
+        */
 
         const user = interaction.user;
         console.log(`User ${user.id} is trying`);
         const value = Math.random();
 
-        if (value > 0.5) {
+        if (value > this.looserate) {
           await storage.incrementSuicideGame(user.id);
+
+          // Update looserate
+          if (this.looserate < 1) {
+            this.looserate = this.looserate + STEP;
+          }
         } else {
           // Check if role exists
           const role = interaction.guild?.roles.cache.get(punishRoleId);
@@ -88,6 +101,9 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
 
           // Reset score
           await storage.resetSuicideGame(user.id);
+
+          // Reset looserate
+          this.looserate = DEFAULT_LOOSERATE;
         }
 
         // Update scores
