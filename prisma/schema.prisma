@@ -13,7 +13,6 @@ generator client {
 model BotGuild {
   id             String   @id
   messageReactId String?
-  punishRoleId   String?
   countCrayon    Int?     @default(0)
   createdAt      DateTime @default(now())
 }

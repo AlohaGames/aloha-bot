@@ -11,30 +11,26 @@ import {
 } from "discord.js";
 
 const DEFAULT_LOOSERATE = 0.1;
+const DEFAULT_POINT = 1;
 const STEP = 0.05;
 
 export class CreateSuicideSlashCommand extends BasicSlashCommand {
   looserate = DEFAULT_LOOSERATE;
+  points = DEFAULT_POINT;
 
   register(
     name: string
   ): Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> {
     return new SlashCommandBuilder()
       .setName(name)
-      .setDescription("Create a suicide game in your discord server !")
-      .addRoleOption((option) =>
-        option
-          .setName("punish-role")
-          .setDescription("Role the user will be added to be punished")
-          .setRequired(true)
-      );
+      .setDescription("Create a suicide game in your discord server !");
   }
 
   getEmbed(scores: SuicidalScore[]) {
     const embed = new MessageEmbed()
       .setColor("#C53A41")
       .setAuthor("Leaderboard")
-      .setFooter(`Looserate : ${this.looserate}`);
+      .setFooter(`Looserate : ${this.looserate}\nPoints : ${this.points}`);
 
     if (scores.length > 0) {
       embed.setDescription(
@@ -61,45 +57,23 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
           interaction.guildId
         );
 
-        // Retrieve punish role id
-        const guildData = await storage.getGuildData();
-        if (!guildData || !guildData.punishRoleId)
-          throw new Error("Game not instanciate");
-        const punishRoleId = guildData.punishRoleId;
-
-        // If user already punish
-        /* 
-        const member = interaction.member as GuildMember;
-        if (member.roles.cache.find((r) => r.id === punishRoleId)) {
-          interaction.reply({
-            content: "You are already punish !",
-            ephemeral: true,
-          });
-          return;
-        } 
-        */
-
         const user = interaction.user;
         console.log(`User ${user.id} is trying`);
         const value = Math.random();
 
         if (value > this.looserate) {
-          await storage.incrementSuicideGame(user.id);
+          await storage.incrementSuicideGame(user.id, this.points);
 
           // Update looserate
           if (this.looserate < 1) {
             this.looserate = this.looserate + STEP;
+            if (this.looserate > 0.5) {
+              this.points * 2;
+            }
           }
         } else {
-          // Check if role exists
-          const role = interaction.guild?.roles.cache.get(punishRoleId);
-          if (!role) throw new Error(`Role ${punishRoleId} doest not exists`);
-
-          // Add role to member
-          const member = interaction.member as GuildMember;
-          member.roles.add(punishRoleId);
-
           // Reset score
+
           await storage.resetSuicideGame(user.id);
 
           // Reset looserate
@@ -118,30 +92,18 @@ export class CreateSuicideSlashCommand extends BasicSlashCommand {
   async execute(ctx: DiscordOnInteractionContext): Promise<void> {
     const member = ctx.interaction.member as GuildMember;
     if (member && member.permissions.has("ADMINISTRATOR")) {
-      const punishRoleId = ctx.interaction.options.getRole("punish-role")?.id;
-      if (punishRoleId) {
-        // Save punish role for later
-        const storage = await ctx.storageManager.getStorage(
-          ctx.interaction.guildId
-        );
-        await storage.updateGuildData({
-          punishRoleId,
-        });
-        const actions = new MessageActionRow().addComponents(
-          new MessageButton()
-            .setCustomId("play")
-            .setLabel("SUICIDEZ-MOI !")
-            .setStyle("SUCCESS")
-        );
+      const actions = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId("play")
+          .setLabel("SUICIDEZ-MOI !")
+          .setStyle("SUCCESS")
+      );
 
-        ctx.interaction.reply({
-          content: "Welcome to the Suicide Game",
-          embeds: [this.getEmbed([])],
-          components: [actions],
-        });
-      } else {
-        throw new Error("No punish role");
-      }
+      ctx.interaction.reply({
+        content: "Welcome to the Suicide Game",
+        embeds: [this.getEmbed([])],
+        components: [actions],
+      });
     } else {
       throw new Error("User is not administrator !");
     }

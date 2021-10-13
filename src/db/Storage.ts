@@ -45,7 +45,7 @@ export class Storage {
     });
   }
 
-  async incrementSuicideGame(userId: string): Promise<number> {
+  async incrementSuicideGame(userId: string, points: number): Promise<number> {
     const suicidalScore = await prismaInstance.suicidalScore.upsert({
       where: {
         userId_guildId: {
@@ -56,13 +56,13 @@ export class Storage {
       create: {
         guildId: this.guildId,
         userId,
-        score: 1,
+        score: points,
       },
       update: {
         guildId: this.guildId,
         userId,
         score: {
-          increment: 1,
+          increment: points,
         },
       },
     });
