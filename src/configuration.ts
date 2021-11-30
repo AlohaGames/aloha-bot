@@ -14,6 +14,9 @@ export interface BotConfiguration {
   theMovieDb: {
     apiKey?: string;
   };
+  tenor: {
+    apiKey?: string;
+  }
 }
 
 if (!process.env.DISCORD_TOKEN) {
@@ -36,6 +39,9 @@ export const configuration: BotConfiguration = {
   theMovieDb: {
     apiKey: process.env.API_KEY,
   },
+  tenor: {
+    apiKey: process.env.TENOR_KEY,
+  }
 };
 
 function parseStringArray(stringArray: string | undefined) {
