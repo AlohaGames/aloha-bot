@@ -17,6 +17,7 @@ import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 import { commandNameArgs } from "./common/command-name-args";
 import { CinenssatCommandCreate } from "./commands/Cinenssat/CinenssatCommandCreate";
+import { GifSlashCommand } from "./commands/GifCommand/GifSlashCommande";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
@@ -92,6 +93,11 @@ commandSlashManager.registerCommand(
   "create-suicide-game",
   new CreateSuicideSlashCommand()
 );
+commandSlashManager.registerCommand(
+  contextManager.getDiscordContext(),
+  "gif",
+  new GifSlashCommand()
+)
 
 // Register Slash commands at Discord from the manager
 registerSlashCommands(rest, commandSlashManager, [
