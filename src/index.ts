@@ -17,7 +17,7 @@ import { ContextManager } from "./ContextManager";
 import { registerSlashCommands } from "./register-slash-commands";
 import { commandNameArgs } from "./common/command-name-args";
 import { CinenssatCommandCreate } from "./commands/Cinenssat/CinenssatCommandCreate";
-import { GifSlashCommand } from "./commands/GifCommand/GifCommande";
+import { GifSlashCommand } from "./commands/GifCommand/GifSlashCommande";
 
 // https://discord.com/developers/docs/topics/gateway
 const client = new Client({
